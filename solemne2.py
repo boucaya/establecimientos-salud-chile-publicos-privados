@@ -62,6 +62,7 @@ privado = (df_analisis["TipoSistemaSaludGlosa"] == "Privado").sum()
 pct_publico = publico / total * 100 if total > 0 else 0
 pct_privado = privado / total * 100 if total > 0 else 0
 
+st.subheader("Número de Establecimientos")
 col1, col2, col3 = st.columns(3)
 col1.metric("Total Establecimientos (Público y Privado)", f"{total:,}")
 col2.metric("Sistema Público", f"{publico:,} ({pct_publico:.1f}%)")
@@ -145,7 +146,7 @@ with tab2:
         col_graf, col_tabla = st.columns([2, 1])
         with col_graf:
             fig, ax = plt.subplots(figsize=(10, 7))
-            region_sistema.plot(kind="barh", stacked=True, ax=ax, color=["#8da0cb", "#fc8d62"])
+            region_sistema.plot(kind="barh", stacked=True, ax=ax, color=["#264653", "#fc8d62"])
             ax.set_xlabel("Cantidad")
             ax.set_ylabel("Región")
             ax.legend(title="Sistema de Salud")
@@ -179,7 +180,7 @@ with tab3:
         with col_graf1:
             st.markdown("#### Apertura de Establecimientos por Década")
             fig, ax = plt.subplots(figsize=(5, 4))
-            decada_sistema.plot(kind="bar", ax=ax, color=["#8da0cb", "#fc8d62"])
+            decada_sistema.plot(kind="bar", ax=ax, color=["#264653", "#fc8d62"])
             ax.set_xlabel("Década de Inicio")
             ax.set_ylabel("Cantidad de Establecimientos")
             ax.legend(title="Sistema de Salud")
@@ -221,7 +222,7 @@ with tab4:
         col_graf, col_tabla = st.columns([1, 1])
         with col_graf:
             fig, ax = plt.subplots(figsize=(5, 4))
-            nivel_sistema.plot(kind="bar", ax=ax, color=["#8da0cb", "#fc8d62"])
+            nivel_sistema.plot(kind="bar", ax=ax, color=["#264653", "#fc8d62"])
             ax.set_xlabel("Nivel de Atención")
             ax.set_ylabel("Cantidad de Establecimientos")
             ax.legend(title="Sistema de Salud")
@@ -254,7 +255,7 @@ with tab5:
         col_graf, col_tabla = st.columns([1, 1])
         with col_graf:
             fig, ax = plt.subplots(figsize=(5, 4))
-            urgencia_sistema.plot(kind="bar", ax=ax, color=["#8da0cb", "#fc8d62"])
+            urgencia_sistema.plot(kind="bar", ax=ax, color=["#264653", "#fc8d62"])
             ax.set_xlabel("Servicio de Urgencia")
             ax.set_ylabel("Cantidad de Establecimientos")
             ax.legend(title="Sistema de Salud")
@@ -295,7 +296,7 @@ with tab6:
         with col_pub:
             st.markdown("### Público")
             fig_pub, ax_pub = plt.subplots(figsize=(5, 2.5))
-            top_publico.sort_values().plot(kind="barh", ax=ax_pub, color="#8da0cb")
+            top_publico.sort_values().plot(kind="barh", ax=ax_pub, color="#264653")
             ax_pub.set_xlabel("Cantidad")
             ax_pub.set_ylabel("Tipo de Establecimiento")
             plt.tight_layout()
