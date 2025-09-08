@@ -12,6 +12,7 @@ RESOURCE_ID = "2c44d782-3365-44e3-aefb-2c8b8363a1bc"
 
 st.set_page_config(page_title="Establecimientos de Salud en Chile", layout="wide", page_icon="🏥")
 st.title("Establecimientos de Salud en Chile: Público vs Privado")
+st.markdown("""Este dashboard interactivo permite hacer una comparativa entre los establecimientos de salud públicos y privados en Chile.""")
 st.caption("Fuente: datos.gob.cl")
 
 @st.cache_data(show_spinner=False)
