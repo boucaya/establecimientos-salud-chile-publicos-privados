@@ -120,8 +120,6 @@ with tab1:
     if comuna2 != "(Todas)":
         df_tab2 = df_tab2[df_tab2["ComunaGlosa"] == comuna2]
 
-    st.success(f"Registros mostrados: {len(df_tab2):,} de {len(df_analisis):,}")
-
     if "Latitud" in df_tab2.columns and "Longitud" in df_tab2.columns:
         df_map = df_tab2.dropna(subset=["Latitud", "Longitud"]).copy()
         df_map["Latitud"] = pd.to_numeric(df_map["Latitud"], errors="coerce")
