@@ -2,6 +2,10 @@ import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
+def clear_filters_tab2():
+    st.session_state["region_tab2"] = "(Todas)"
+    st.session_state["comuna_tab2"] = "(Todas)"
+    st.session_state["tipo_sis_tab2"] = "(Todos)"
 
 API_BASE = "https://datos.gob.cl/api/3/action/datastore_search"
 RESOURCE_ID = "2c44d782-3365-44e3-aefb-2c8b8363a1bc"
@@ -64,8 +68,8 @@ col3.metric("Sistema Privado", f"{privado:,} ({pct_privado:.1f}%)")
 
 # SELECCIÓN DE VISTAS
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "Distribución Geográfica",
     "Mapa de Establecimientos",
+    "Distribución Geográfica",
     "Histórico de Apertura",
     "Nivel de Atención",
     "Servicios de Urgencia",
@@ -73,6 +77,60 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 ])
 
 with tab1:
+    st.subheader("Mapa de Establecimientos por Sistema de Salud")
+
+    # Filtros del mapa
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+    with col1:
+        region2 = st.selectbox(
+            "Región",
+            ["(Todas)"] + sorted(df_analisis["RegionGlosa"].dropna().unique().tolist()),
+            key="region_tab2"
+        )
+    with col2:
+        if region2 != "(Todas)":
+            comunas_disponibles = sorted(
+                df_analisis[df_analisis["RegionGlosa"] == region2]["ComunaGlosa"].dropna().unique().tolist()
+            )
+        else:
+            comunas_disponibles = sorted(
+                df_analisis["ComunaGlosa"].dropna().unique().tolist()
+            )
+        comuna2 = st.selectbox(
+            "Comuna",
+            ["(Todas)"] + comunas_disponibles,
+            key="comuna_tab2"
+        )
+    with col3:
+        tipo_sis2 = st.selectbox(
+            "Sistema de Salud",
+            ["(Todos)"] + sorted(df_analisis["TipoSistemaSaludGlosa"].dropna().unique().tolist()),
+            key="tipo_sis_tab2"
+        )
+    with col4:
+        st.markdown("<div style='height:32px'></div>", unsafe_allow_html=True)
+        st.button("Eliminar filtros", key="clear_filters_tab2", on_click=clear_filters_tab2)
+
+    df_tab2 = df_analisis.copy()
+    if region2 != "(Todas)":
+        df_tab2 = df_tab2[df_tab2["RegionGlosa"] == region2]
+    if tipo_sis2 != "(Todos)":
+        df_tab2 = df_tab2[df_tab2["TipoSistemaSaludGlosa"] == tipo_sis2]
+    if comuna2 != "(Todas)":
+        df_tab2 = df_tab2[df_tab2["ComunaGlosa"] == comuna2]
+
+    st.success(f"Registros mostrados: {len(df_tab2):,} de {len(df_analisis):,}")
+
+    if "Latitud" in df_tab2.columns and "Longitud" in df_tab2.columns:
+        df_map = df_tab2.dropna(subset=["Latitud", "Longitud"]).copy()
+        df_map["Latitud"] = pd.to_numeric(df_map["Latitud"], errors="coerce")
+        df_map["Longitud"] = pd.to_numeric(df_map["Longitud"], errors="coerce")
+        df_map = df_map.dropna(subset=["Latitud", "Longitud"])
+        st.map(df_map.rename(columns={"Latitud": "latitude", "Longitud": "longitude"}))
+    else:
+        st.info("Este dataset no incluye columnas de Latitud/Longitud.")
+
+with tab2:
     st.subheader("Distribución por Región y Sistema de Salud")
     if "RegionGlosa" in df_analisis.columns and "SistemaSaludAgrupado" in df_analisis.columns:
         region_sistema = (
@@ -102,56 +160,6 @@ with tab1:
             st.dataframe(tabla_top5)
     else:
         st.info("No hay datos suficientes para mostrar este gráfico.")
-
-with tab2:
-    st.subheader("Mapa de Establecimientos por Sistema de Salud")
-    # Filtros del mapa
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        region2 = st.selectbox(
-            "Región",
-            ["(Todas)"] + sorted(df_analisis["RegionGlosa"].dropna().unique().tolist()),
-            key="region_tab2"
-        )
-    with col2:
-        if region2 != "(Todas)":
-            comunas_disponibles = sorted(
-                df_analisis[df_analisis["RegionGlosa"] == region2]["ComunaGlosa"].dropna().unique().tolist()
-            )
-        else:
-            comunas_disponibles = sorted(
-                df_analisis["ComunaGlosa"].dropna().unique().tolist()
-            )
-        comuna2 = st.selectbox(
-            "Comuna",
-            ["(Todas)"] + comunas_disponibles,
-            key="comuna_tab2"
-        )
-    with col3:
-        tipo_sis2 = st.selectbox(
-            "Sistema de Salud",
-            ["(Todos)"] + sorted(df_analisis["TipoSistemaSaludGlosa"].dropna().unique().tolist()),
-            key="tipo_sis_tab2"
-        )
-
-    df_tab2 = df_analisis.copy()
-    if region2 != "(Todas)":
-        df_tab2 = df_tab2[df_tab2["RegionGlosa"] == region2]
-    if tipo_sis2 != "(Todos)":
-        df_tab2 = df_tab2[df_tab2["TipoSistemaSaludGlosa"] == tipo_sis2]
-    if comuna2 != "(Todas)":
-        df_tab2 = df_tab2[df_tab2["ComunaGlosa"] == comuna2]
-
-    st.success(f"Registros mostrados: {len(df_tab2):,} de {len(df_analisis):,}")
-
-    if "Latitud" in df_tab2.columns and "Longitud" in df_tab2.columns:
-        df_map = df_tab2.dropna(subset=["Latitud", "Longitud"]).copy()
-        df_map["Latitud"] = pd.to_numeric(df_map["Latitud"], errors="coerce")
-        df_map["Longitud"] = pd.to_numeric(df_map["Longitud"], errors="coerce")
-        df_map = df_map.dropna(subset=["Latitud", "Longitud"])
-        st.map(df_map.rename(columns={"Latitud": "latitude", "Longitud": "longitude"}))
-    else:
-        st.info("Este dataset no incluye columnas de Latitud/Longitud.")
 
 with tab3:
     st.subheader("Histórico de Apertura de Establecimientos por Década y Sistema de Salud")
