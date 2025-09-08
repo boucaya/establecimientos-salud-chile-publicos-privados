@@ -16,7 +16,7 @@ st.markdown("""Este dashboard interactivo permite hacer una comparativa entre lo
 st.caption("Fuente: datos.gob.cl")
 
 @st.cache_data(show_spinner=False)
-def fetch_data(limit: int = 5000):
+def fetch_data(limit: int = 10000):
     """Descarga registros desde la API"""
     params = {"resource_id": RESOURCE_ID, "limit": limit}
     r = requests.get(API_BASE, params=params, timeout=60)
